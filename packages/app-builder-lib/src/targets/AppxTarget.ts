@@ -272,9 +272,10 @@ export default class AppXTarget extends Target {
         extensions += `
           <uap:Extension Category="windows.fileTypeAssociation">
             <uap:FileTypeAssociation Name="${item.ext}">`
+            extensions += `<uap:DisplayName>.${item.ext}</uap:DisplayName>`
 
         if (item.name) {
-          extensions += `<uap:DisplayName>${item.name}</uap:DisplayName>`
+          extensions += `<uap:InfoTip>${item.name}</uap:InfoTip>`
         }
 
         extensions += `<uap:SupportedFileTypes>`
@@ -284,6 +285,7 @@ export default class AppXTarget extends Target {
           extensions += `
                 <uap:FileType>.${ext}</uap:FileType>`
         }
+
         extensions += `
               </uap:SupportedFileTypes>
             </uap:FileTypeAssociation>
