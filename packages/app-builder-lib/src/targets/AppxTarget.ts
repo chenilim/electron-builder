@@ -250,6 +250,7 @@ export default class AppXTarget extends Target {
 
   private getExtensions(executable: string, displayName: string): string {
     const packager = this.packager
+    const fileAssociations = packager.fileAssociations
 
     const uriSchemes = asArray(this.packager.config.protocols)
       .concat(asArray(this.packager.platformSpecificBuildOptions.protocols))
@@ -260,21 +261,20 @@ export default class AppXTarget extends Target {
       isAddAutoLaunchExtension = deps != null && deps["electron-winstore-auto-launch"] != null
     }
 
-    if (!isAddAutoLaunchExtension && uriSchemes.length === 0) {
+    if (!isAddAutoLaunchExtension && fileAssociations.length === 0 && uriSchemes.length === 0) {
       return ""
     }
 
     let extensions = "<Extensions>"
 
-    const fileAssociations = packager.fileAssociations
     if (fileAssociations.length !== 0) {
       for (const item of fileAssociations) {
         extensions += `
           <uap:Extension Category="windows.fileTypeAssociation">
-            <uap:FileTypeAssociation Name="${item.name || item.ext}">`
+            <uap:FileTypeAssociation Name="${item.ext}">`
 
-        if (item.description) {
-          extensions += `<uap:DisplayName>${item.description}</uap:DisplayName>`
+        if (item.name) {
+          extensions += `<uap:DisplayName>${item.name}</uap:DisplayName>`
         }
 
         extensions += `<uap:SupportedFileTypes>`
@@ -284,7 +284,6 @@ export default class AppXTarget extends Target {
           extensions += `
                 <uap:FileType>.${ext}</uap:FileType>`
         }
-
         extensions += `
               </uap:SupportedFileTypes>
             </uap:FileTypeAssociation>
