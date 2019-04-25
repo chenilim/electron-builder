@@ -276,13 +276,13 @@ export default class AppXTarget extends Target {
         if (item.description) {
           extensions += `<uap:DisplayName>${item.description}</uap:DisplayName>`
         }
-            
+
         extensions += `<uap:SupportedFileTypes>`
-        
+
         const fileExtensions = asArray(item.ext).map(normalizeExt)
         for (const ext of fileExtensions) {
           extensions += `
-                <uap:FileType>.${item.ext}</uap:FileType>`
+                <uap:FileType>.${ext}</uap:FileType>`
         }
 
         extensions += `
