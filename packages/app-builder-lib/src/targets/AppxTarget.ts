@@ -10,6 +10,7 @@ import { getTemplatePath } from "../util/pathManager"
 import { VmManager } from "../vm/vm"
 import { WinPackager } from "../winPackager"
 import { createStageDir } from "./targetUtil"
+import { normalizeExt } from "../platformPackager"
 
 const APPX_ASSETS_DIR_NAME = "appx"
 
@@ -248,6 +249,8 @@ export default class AppXTarget extends Target {
   }
 
   private getExtensions(executable: string, displayName: string): string {
+    const packager = this.packager
+
     const uriSchemes = asArray(this.packager.config.protocols)
       .concat(asArray(this.packager.platformSpecificBuildOptions.protocols))
 
@@ -262,6 +265,32 @@ export default class AppXTarget extends Target {
     }
 
     let extensions = "<Extensions>"
+
+    const fileAssociations = packager.fileAssociations
+    if (fileAssociations.length !== 0) {
+      for (const item of fileAssociations) {
+        extensions += `
+          <uap:Extension Category="windows.fileTypeAssociation">
+            <uap:FileTypeAssociation Name="${item.name || item.ext}">`
+
+        if (item.description) {
+          extensions += `<uap:DisplayName>${item.description}</uap:DisplayName>`
+        }
+            
+        extensions += `<uap:SupportedFileTypes>`
+        
+        const fileExtensions = asArray(item.ext).map(normalizeExt)
+        for (const ext of fileExtensions) {
+          extensions += `
+                <uap:FileType>.${item.ext}</uap:FileType>`
+        }
+
+        extensions += `
+              </uap:SupportedFileTypes>
+            </uap:FileTypeAssociation>
+          </uap:Extension>`
+      }
+    }
 
     if (isAddAutoLaunchExtension) {
       extensions += `
